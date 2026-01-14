@@ -1,0 +1,143 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g., v1.2.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    name: Pre-release Validation
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      version_number: ${{ steps.version.outputs.version_number }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Extract version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION=${{ github.event.inputs.version }}
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+
+          # Remove 'v' prefix if present
+          VERSION_NUMBER=${VERSION#v}
+
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "version_number=${VERSION_NUMBER}" >> $GITHUB_OUTPUT
+
+      - name: Validate version format
+        run: |
+          VERSION_NUMBER=${{ steps.version.outputs.version_number }}
+          if ! [[ $VERSION_NUMBER =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format: $VERSION_NUMBER"
+            echo "Version must follow semantic versioning (x.y.z)"
+            exit 1
+          fi
+
+      - name: Check plugin.json version matches
+        run: |
+          PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['version'])")
+          RELEASE_VERSION=${{ steps.version.outputs.version_number }}
+
+          if [[ "$PLUGIN_VERSION" != "$RELEASE_VERSION" ]]; then
+            echo "❌ Version mismatch!"
+            echo "plugin.json version: $PLUGIN_VERSION"
+            echo "Release version: $RELEASE_VERSION"
+            echo ""
+            echo "Please update .claude-plugin/plugin.json to match the release version."
+            exit 1
+          fi
+
+          echo "✅ Version $RELEASE_VERSION validated"
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh scripts/*.py
+
+      - name: Run plugin validation
+        run: ./scripts/validate-plugin.sh
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          VERSION=${{ needs.validate.outputs.version }}
+
+          # Generate changelog for this version
+          if git describe --tags --abbrev=0 HEAD^ >/dev/null 2>&1; then
+            PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^)
+            echo "## Changes since $PREVIOUS_TAG" > CHANGELOG_CURRENT.md
+            echo "" >> CHANGELOG_CURRENT.md
+            git log $PREVIOUS_TAG..HEAD --oneline --format="- %s" >> CHANGELOG_CURRENT.md
+          else
+            echo "## Initial Release" > CHANGELOG_CURRENT.md
+            echo "" >> CHANGELOG_CURRENT.md
+            echo "- Initial version of the guardrail-commit-skill plugin" >> CHANGELOG_CURRENT.md
+          fi
+
+          echo "" >> CHANGELOG_CURRENT.md
+          echo "---" >> CHANGELOG_CURRENT.md
+          echo "" >> CHANGELOG_CURRENT.md
+          echo "### Installation" >> CHANGELOG_CURRENT.md
+          echo "" >> CHANGELOG_CURRENT.md
+          echo "\`\`\`bash" >> CHANGELOG_CURRENT.md
+          echo "/plugin marketplace add snowmead/guardrail-commit-skill" >> CHANGELOG_CURRENT.md
+          echo "/plugin install guardrail-commit-skill" >> CHANGELOG_CURRENT.md
+          echo "\`\`\`" >> CHANGELOG_CURRENT.md
+
+      - name: Create plugin archive
+        run: |
+          VERSION=${{ needs.validate.outputs.version }}
+          mkdir -p dist
+
+          tar -czf "dist/guardrail-commit-skill-${VERSION}.tar.gz" \
+            --exclude='.git*' \
+            --exclude='dist' \
+            --exclude='node_modules' \
+            --exclude='.github' \
+            .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.validate.outputs.version }}
+          name: Release ${{ needs.validate.outputs.version }}
+          body_path: CHANGELOG_CURRENT.md
+          draft: false
+          prerelease: false
+          files: |
+            dist/guardrail-commit-skill-${{ needs.validate.outputs.version }}.tar.gz

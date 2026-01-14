@@ -1,0 +1,11 @@
+{
+  "name": "guardrail-commit-skill",
+  "version": "1.0.0",
+  "description": "Skill for creating and managing prek pre-commit hooks to enforce code quality guardrails",
+  "author": {
+    "name": "snowmead"
+  },
+  "repository": "https://github.com/snowmead/guardrail-commit-skill",
+  "license": "MIT",
+  "keywords": ["prek", "pre-commit", "hooks", "guardrails", "code-quality"]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "guardrails",
+  "owner": {
+    "name": "snowmead"
+  },
+  "metadata": {
+    "description": "Plugin marketplace for prek pre-commit hooks and code quality guardrails",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "guardrail-commit-skill",
+      "description": "Skill for creating and managing prek pre-commit hooks to enforce code quality guardrails",
+      "source": "./"
+    }
+  ]
+}

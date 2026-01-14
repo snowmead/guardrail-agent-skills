@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "guardrail-commit-skill@guardrails": true
+  }
+}
