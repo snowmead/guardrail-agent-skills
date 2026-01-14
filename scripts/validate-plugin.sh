@@ -154,27 +154,6 @@ validate_yaml_json_syntax() {
     success "  All YAML/JSON files have valid syntax"
 }
 
-check_for_secrets() {
-    echo "Checking for potential secrets..."
-
-    local patterns=(
-        "PRIVATE KEY"
-        "BEGIN RSA PRIVATE KEY"
-        "BEGIN DSA PRIVATE KEY"
-        "BEGIN EC PRIVATE KEY"
-        "BEGIN OPENSSH PRIVATE KEY"
-    )
-
-    for pattern in "${patterns[@]}"; do
-        if grep -r --include="*.md" --include="*.json" --include="*.yaml" --include="*.yml" -l "$pattern" . 2>/dev/null | grep -v ".git"; then
-            error "Potential private key found! Check files above."
-            exit 1
-        fi
-    done
-
-    success "  No obvious secrets detected"
-}
-
 main() {
     echo ""
     echo "🔍 Validating Claude Code plugin structure..."
@@ -184,7 +163,8 @@ main() {
     validate_marketplace_json
     validate_directory_structure
     validate_yaml_json_syntax
-    check_for_secrets
+
+    # Note: Secret detection handled by prek's detect-private-key hook
 
     echo ""
     success "✅ Plugin validation passed!"
