@@ -68,7 +68,7 @@ prek is a faster, dependency-free reimplementation of the pre-commit framework w
 - **Automatic language detection** - Detects Python, Rust, JavaScript/TypeScript, Go, and more
 - **Dynamic version fetching** - Always uses latest hook versions from GitHub
 - **Migration support** - Helps migrate from husky, lefthook, or pre-commit
-- **Security-first defaults** - Always includes hooks for detecting secrets and protecting branches
+- **Security-first defaults** - Always includes hooks for detecting secrets, with optional branch protection
 
 ## Usage Example
 
@@ -77,23 +77,28 @@ You: Help me set up this Python project with proper guardrails
 
 Claude: I'll analyze your project and recommend appropriate pre-commit hooks...
 
-[Detects Python, checks for existing hooks]
+[Detects Python, checks for existing hooks, scans for file types]
 
 Claude: I recommend setting up prek with these hooks:
-- Security: detect-private-key, no-commit-to-branch
-- Quality: trailing-whitespace, end-of-file-fixer
+- Universal: trailing-whitespace, end-of-file-fixer, detect-private-key
+- File validators: check-yaml (found 3 .yml files), check-toml (found pyproject.toml)
+- Security: gitleaks
 - Python: ruff (linting + formatting)
 
-Would you like me to create this configuration?
+Do you want to prevent direct commits to main/master branches?
 
 You: Yes
 
 Claude: [Creates .pre-commit-config.yaml, runs prek install]
 ```
 
-## Default Hooks
+## Hook Selection
 
-Every project gets these baseline security and quality hooks:
+Hooks are selected based on project context, not blindly applied.
+
+### Always Included
+
+Universal hooks that benefit every project:
 
 ```yaml
 repos:
@@ -101,12 +106,31 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-json
       - id: detect-private-key
       - id: check-merge-conflict
-      - id: no-commit-to-branch
-        args: [--branch, main, --branch, master]
+      - id: check-added-large-files
+```
+
+### Conditional (based on files detected)
+
+| Hook | Included If |
+|------|-------------|
+| `check-yaml` | Project has `.yml` or `.yaml` files |
+| `check-json` | Project has `.json` files |
+| `check-toml` | Project has `.toml` files |
+
+### User Confirmation Required
+
+| Hook | Behavior |
+|------|----------|
+| `no-commit-to-branch` | Asked if team uses feature branches |
+
+### Security (always recommended)
+
+```yaml
+  - repo: https://github.com/gitleaks/gitleaks
+    hooks:
+      - id: gitleaks
 ```
 
 ## Language-Specific Hooks
