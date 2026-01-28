@@ -120,11 +120,13 @@ WebFetch: https://api.github.com/repos/astral-sh/ruff-pre-commit/releases/latest
 Prompt: "Extract the tag_name for the latest version"
 ```
 
-#### 4. Generate Recommendations
+#### 4. Evaluate Base Hooks for Relevance
 
-Based on detected languages, build a recommended configuration:
+Before generating recommendations, evaluate each base hook for relevance to **this specific project**.
 
-**Always include:**
+##### Always Include (Universal Benefits)
+
+These hooks provide value for any project:
 
 ```yaml
 repos:
@@ -132,17 +134,62 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-json
       - id: detect-private-key
       - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=500]
+```
+
+##### Include If Files Exist
+
+Run these checks and **only include the hook if matches are found**:
+
+| Hook | Check | Include If |
+|------|-------|------------|
+| `check-yaml` | `Glob: **/*.{yml,yaml}` (exclude .git) | YAML files found |
+| `check-json` | `Glob: **/*.json` (exclude node_modules, .git) | JSON files found |
+| `check-toml` | `Glob: **/*.toml` | TOML files found |
+
+Example evaluation:
+```
+Glob: **/*.yml → 3 files found → include check-yaml
+Glob: **/*.json → 0 files found (excluding node_modules) → skip check-json
+Glob: **/*.toml → 1 file found → include check-toml
+```
+
+##### Ask User About Workflow
+
+The `no-commit-to-branch` hook assumes a feature-branch workflow. **Ask the user before including:**
+
+```
+Do you want to prevent direct commits to main/master branches?
+This is useful if your team uses feature branches and pull requests.
+```
+
+Only include if user confirms:
+```yaml
       - id: no-commit-to-branch
         args: [--branch, main, --branch, master]
 ```
 
+##### Security Hooks (Always Recommend)
+
+Always recommend gitleaks for comprehensive secret detection:
+
+```yaml
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: "{fetch from Version API}"
+    hooks:
+      - id: gitleaks
+```
+
+#### 5. Generate Recommendations
+
+Based on detected languages and the base hook evaluation above, build a recommended configuration.
+
 **Add language-specific hooks based on detection.**
 
-#### 5. Present to User
+#### 6. Present to User
 
 Show the complete recommended configuration with explanations:
 
@@ -151,12 +198,19 @@ Show the complete recommended configuration with explanations:
 
 Based on my analysis, I recommend these pre-commit hooks for your {language} project:
 
-### Security & Quality Hooks
+### Universal Hooks
 - `trailing-whitespace` - Removes trailing whitespace
 - `end-of-file-fixer` - Ensures files end with newline
 - `detect-private-key` - Prevents committing secrets
 - `check-merge-conflict` - Catches unresolved conflicts
-- `no-commit-to-branch` - Protects main/master branches
+- `check-added-large-files` - Prevents bloating the repository
+
+### File Format Validators (based on files detected)
+- `check-yaml` - Validates YAML syntax (included because .yml files found)
+- `check-toml` - Validates TOML syntax (included because .toml files found)
+
+### Security
+- `gitleaks` - Comprehensive secret detection
 
 ### {Language} Hooks
 - `{hook}` - {description}
@@ -174,8 +228,6 @@ Would you like me to:
 3. Skip for now
 
 ````
-
-#### 6. Wait for User Response
 
 Use AskUserQuestion to get user's decision before proceeding.
 
@@ -259,22 +311,51 @@ Prompt: "Get the latest release tag_name"
 
 ##### Generate Config
 
-Build `.pre-commit-config.yaml` based on detected languages:
+Build `.pre-commit-config.yaml` using context-aware hook selection:
 
+**Step 1: Always include universal hooks**
 ```yaml
-# Base config (always included)
 repos:
   - repo: builtin
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-json
       - id: detect-private-key
       - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=500]
+```
+
+**Step 2: Check for file format validators**
+
+Run glob checks and only include hooks for file types that exist:
+
+| Hook | Check | Include If |
+|------|-------|------------|
+| `check-yaml` | `Glob: **/*.{yml,yaml}` (exclude .git) | YAML files found |
+| `check-json` | `Glob: **/*.json` (exclude node_modules, .git) | JSON files found |
+| `check-toml` | `Glob: **/*.toml` | TOML files found |
+
+**Step 3: Ask about branch protection**
+
+Ask user: "Do you want to prevent direct commits to main/master branches?"
+
+Only include if user confirms:
+```yaml
       - id: no-commit-to-branch
         args: [--branch, main, --branch, master]
-# Add language-specific hooks based on detection
+```
+
+**Step 4: Add security hooks and language-specific hooks**
+
+```yaml
+  # Security - always recommend
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: "{fetch from Version API}"
+    hooks:
+      - id: gitleaks
+
+  # Language-specific hooks based on detection
 ```
 
 ##### Show to User
@@ -288,9 +369,12 @@ Present the configuration and ask for confirmation:
 
 This will:
 - Check for trailing whitespace and fix line endings
-- Validate YAML and JSON files
 - Prevent committing private keys
-- Block direct commits to main/master
+- Scan for secrets with gitleaks
+{if check-yaml included} - Validate YAML syntax
+{if check-json included} - Validate JSON syntax
+{if check-toml included} - Validate TOML syntax
+{if no-commit-to-branch included} - Block direct commits to main/master
 - {language-specific descriptions}
 
 Create this configuration?
