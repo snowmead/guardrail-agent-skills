@@ -34,20 +34,32 @@ has_field() {
 get_file_type() {
     local file="$1"
 
-    # Check for skill files (skills/[name]/SKILL.md)
+    # Check for skill files (*/skills/*/SKILL.md or skills/*/SKILL.md)
     if [[ "$file" == *"/skills/"*"/SKILL.md" ]] || [[ "$file" == "skills/"*"/SKILL.md" ]]; then
         echo "skill"
         return
     fi
 
-    # Check for agent files (agents/*.md)
+    # Check for agent files (*/agents/*.md or agents/*.md)
     if [[ "$file" == *"/agents/"*.md ]] || [[ "$file" == "agents/"*.md ]]; then
         echo "agent"
         return
     fi
 
+    # Check for command files (*/commands/*.md or commands/*.md)
+    if [[ "$file" == *"/commands/"*.md ]] || [[ "$file" == "commands/"*.md ]]; then
+        echo "command"
+        return
+    fi
+
     # Skip template files
     if [[ "$file" == *"/template/"* ]] || [[ "$file" == "template/"* ]]; then
+        echo "skip"
+        return
+    fi
+
+    # Skip language config files
+    if [[ "$file" == *"/languages/"* ]]; then
         echo "skip"
         return
     fi
@@ -86,7 +98,7 @@ validate_file() {
 
     # Validate required fields based on file type
     case "$file_type" in
-        skill|agent)
+        skill|agent|command)
             if ! has_field "$frontmatter" "name"; then
                 error "$file" "Missing required field 'name'"
                 errors=$((errors + 1))
@@ -108,13 +120,23 @@ validate_file() {
 
 main() {
     local exit_code=0
+    local files=()
 
     if [[ $# -eq 0 ]]; then
-        echo "Usage: check-frontmatter.sh <file1.md> [file2.md ...]"
-        exit 1
+        # Find all markdown files in claude-code/ and skills/ directories
+        while IFS= read -r -d '' file; do
+            files+=("$file")
+        done < <(find claude-code/agents claude-code/commands claude-code/skills skills -name "*.md" -print0 2>/dev/null)
+
+        if [[ ${#files[@]} -eq 0 ]]; then
+            echo "No markdown files found to validate"
+            exit 0
+        fi
+    else
+        files=("$@")
     fi
 
-    for file in "$@"; do
+    for file in "${files[@]}"; do
         if [[ ! -f "$file" ]]; then
             echo "  $file: File not found, skipping"
             continue

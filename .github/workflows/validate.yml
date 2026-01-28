@@ -32,14 +32,13 @@ jobs:
           pip install pyyaml
 
       - name: Make scripts executable
-        run: chmod +x scripts/*.sh scripts/*.py
+        run: chmod +x scripts/*.sh
 
       - name: Validate plugin structure
         run: ./scripts/validate-plugin.sh
 
       - name: Check frontmatter in markdown files
-        run: |
-          find commands skills agents -name "*.md" -exec python3 scripts/check-frontmatter.py {} +
+        run: ./scripts/check-frontmatter.sh
 
       - name: Validate YAML files
         run: |
@@ -72,7 +71,7 @@ jobs:
         run: pip install prek pyyaml
 
       - name: Make scripts executable
-        run: chmod +x scripts/*.sh scripts/*.py
+        run: chmod +x scripts/*.sh
 
       - name: Run prek hooks
         run: prek run --all-files
