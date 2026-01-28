@@ -83,23 +83,38 @@ Analyze the current project and recommend appropriate prek pre-commit hooks.
 
 ### Steps
 
-#### 1. Launch Project Analyzer
+#### 1. Analyze Project Structure
 
-Use the Task tool to launch the prek-analyzer agent:
+Perform project analysis to detect languages and existing hooks:
 
-```json
-{
-  "subagent_type": "commit-guardrails:prek-analyzer",
-  "description": "Analyze project for prek hooks",
-  "prompt": "Analyze this project to recommend prek pre-commit hooks."
-}
-```
+##### Detect Languages
 
-The analyzer will check for:
+Search for language-specific configuration files:
 
-- Languages: package.json, Cargo.toml, pyproject.toml, go.mod, pom.xml, Gemfile
-- Existing hooks: .pre-commit-config.yaml, .husky/, lefthook.yml
-- Project structure: Is this a monorepo?
+| Check | Language |
+|-------|----------|
+| `Glob: **/package.json` (exclude node_modules) | JavaScript/TypeScript |
+| `Glob: **/Cargo.toml` | Rust |
+| `Glob: **/pyproject.toml` or `**/setup.py` | Python |
+| `Glob: **/go.mod` | Go |
+| `Glob: **/pom.xml` or `**/build.gradle` | Java/Kotlin |
+| `Glob: **/Gemfile` | Ruby |
+
+##### Check for Existing Hooks
+
+| Check | Tool |
+|-------|------|
+| `Glob: .pre-commit-config.yaml` | Already using pre-commit/prek |
+| `Glob: .husky/**` | Using husky |
+| `Glob: lefthook.yml` or `.lefthook.yml` | Using lefthook |
+
+##### Check Monorepo Structure
+
+Indicators of monorepo:
+- Multiple `package.json` files at different levels
+- `pnpm-workspace.yaml` or `lerna.json`
+- Multiple `Cargo.toml` with a root workspace
+- Directories like `packages/`, `apps/`, `services/`
 
 #### 2. Check for Existing Hook Tools
 
@@ -277,7 +292,7 @@ Then run the appropriate install command:
 
 #### 2. Analyze Project
 
-Run the **analyze** operation or use prek-analyzer agent to detect:
+Run the project analysis (see **Operation: analyze** above) to detect:
 
 - Project languages
 - Existing hook configuration
