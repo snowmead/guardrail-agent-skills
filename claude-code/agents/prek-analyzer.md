@@ -24,41 +24,41 @@ Search for language-specific configuration files:
 
 ```
 Glob: **/package.json (not in node_modules)
-→ JavaScript/TypeScript project
+-> JavaScript/TypeScript project
 
 Glob: **/Cargo.toml
-→ Rust project
+-> Rust project
 
 Glob: **/pyproject.toml OR **/setup.py OR **/requirements.txt
-→ Python project
+-> Python project
 
 Glob: **/go.mod
-→ Go project
+-> Go project
 
 Glob: **/pom.xml OR **/build.gradle OR **/build.gradle.kts
-→ Java/Kotlin project
+-> Java/Kotlin project
 
 Glob: **/Gemfile
-→ Ruby project
+-> Ruby project
 
 Glob: **/composer.json
-→ PHP project
+-> PHP project
 
 Glob: **/*.swift OR **/Package.swift
-→ Swift project
+-> Swift project
 ```
 
 ### Step 2: Check for Existing Hooks
 
 ```
 Glob: .pre-commit-config.yaml OR .pre-commit-config.yml
-→ Already using pre-commit/prek
+-> Already using pre-commit/prek
 
 Glob: .husky/** OR package.json (check for husky config)
-→ Using husky
+-> Using husky
 
 Glob: lefthook.yml OR .lefthook.yml OR lefthook.yaml
-→ Using lefthook
+-> Using lefthook
 ```
 
 If `.pre-commit-config.yaml` exists, read it to understand current configuration.
@@ -113,34 +113,45 @@ Return a structured analysis:
 {if existing hooks detected, note what migration would involve}
 ```
 
-## Hook Recommendations by Language
+## Language-Specific Hook Discovery
 
-### Python
-- `ruff` - Fast linter (replaces flake8, isort, many others)
-- `ruff-format` - Fast formatter (replaces black)
-- Repo: `https://github.com/astral-sh/ruff-pre-commit`
+Hook recommendations are stored in language-specific files for dynamic updates.
 
-### Rust
-- `cargo-check` - Fast compilation check (built-in)
-- `cargo-clippy` - Linter (built-in)
-- `cargo-fmt` - Formatter (built-in)
+### Discovery Process
 
-### JavaScript/TypeScript
-- `eslint` - Linter
-- `prettier` - Formatter
-- Repos: `mirrors-eslint`, `mirrors-prettier`
+1. **Read the language registry:**
+   ```
+   Read: skills/guardrail-commit-hooks-skill/languages/index.md
+   ```
 
-### Go
-- `golangci-lint` - Comprehensive linter
-- `go-fmt` - Formatter
-- Repo: `https://github.com/golangci/golangci-lint`
+2. **For each detected language, read its configuration:**
+   ```
+   Read: skills/guardrail-commit-hooks-skill/languages/{language}.md
+   ```
 
-### Java/Kotlin
-- `checkstyle` - Java style checker
-- `ktlint` - Kotlin linter/formatter
+3. **Extract from language files:**
+   - Primary tool and purpose
+   - Documentation URLs for latest versions
+   - Repository URLs for hook configuration
+   - Version API endpoints for fetching current releases
+   - Key hooks to enable
 
-### Ruby
-- `rubocop` - Linter and formatter
+### Supported Languages
+
+| Language | Config File | Primary Tool |
+|----------|-------------|--------------|
+| Python | `languages/python.md` | ruff (Rust) |
+| Rust | `languages/rust.md` | cargo tools |
+| JavaScript/TypeScript | `languages/javascript.md` | biome (Rust) |
+| Go | `languages/go.md` | native tools |
+
+### Tool Philosophy
+
+All recommended tools are Rust-based where possible:
+- **ruff** for Python - 10-100x faster than alternatives
+- **biome** for JS/TS - replaces ESLint + Prettier
+- **cargo tools** for Rust - native toolchain
+- **go tools** for Go - native toolchain
 
 ## Output Format
 

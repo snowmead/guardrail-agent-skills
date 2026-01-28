@@ -1,10 +1,61 @@
-# Guardrail Commit Skill
+# Guardrails Plugin Marketplace
 
-A Claude Code plugin for creating and managing [prek](https://github.com/j178/prek) pre-commit hooks to enforce code quality guardrails.
+A Claude Code plugin marketplace for code quality guardrails. Add pre-commit hooks, security scanning, compliance checks, and more to your projects.
+
+## Available Plugins
+
+### commit-guardrails
+
+Pre-commit hooks and code quality enforcement using [prek](https://github.com/j178/prek).
+
+**Skills included:**
+- `guardrail-commit-hooks-skill` - Create and manage prek pre-commit hooks
+
+**Commands:**
+| Command | Description |
+|---------|-------------|
+| `/guardrail` | Analyze project and recommend hooks |
+| `/guardrail:setup` | Full setup wizard - install prek, create config, test hooks |
+| `/guardrail:update` | Update existing hooks to latest versions |
+
+## Installation
+
+```bash
+bunx add-skill snowmead/guardrails
+```
+
+**Install location:** `~/.claude/skills/commit-guardrails/`
+
+## Project Structure
+
+```
+guardrails/
+├── .claude-plugin/
+│   └── marketplace.json       # Plugin registry
+├── claude-code/               # Plugin source
+│   ├── .claude-plugin/
+│   │   └── plugin.json        # Plugin metadata
+│   ├── agents/
+│   │   └── prek-analyzer.md   # Project analyzer agent
+│   ├── commands/
+│   │   ├── guardrail.md
+│   │   ├── guardrail-setup.md
+│   │   └── guardrail-update.md
+│   └── skills/
+│       └── guardrail-commit-hooks-skill/
+│           ├── SKILL.md
+│           ├── LICENSE.txt
+│           └── languages/     # Language configs
+├── skills/                    # Dual discovery path
+│   └── commit-guardrails/
+│       └── SKILL.md
+├── scripts/                   # Validation scripts
+└── template/                  # Template for new skills
+```
 
 ## What is prek?
 
-prek is a faster, dependency-free reimplementation of the pre-commit framework written in Rust. It's a drop-in replacement that works with existing `.pre-commit-config.yaml` files.
+prek is a faster, dependency-free reimplementation of the pre-commit framework written in Rust.
 
 **Why prek over pre-commit?**
 - 4-10x faster installation and execution
@@ -19,52 +70,7 @@ prek is a faster, dependency-free reimplementation of the pre-commit framework w
 - **Migration support** - Helps migrate from husky, lefthook, or pre-commit
 - **Security-first defaults** - Always includes hooks for detecting secrets and protecting branches
 
-## Installation
-
-### As a Claude Code Plugin
-
-```bash
-# Install from local directory
-claude plugins install ~/opt/guardrails
-
-# Or add as a working directory
-claude /add-dir ~/opt/guardrails
-```
-
-### prek Installation
-
-The plugin will help you install prek, but you can also install it manually:
-
-```bash
-# Recommended: via uv
-uv tool install prek
-
-# Via pip
-pip install prek
-
-# Via shell script
-curl -LsSf https://astral.sh/prek/install.sh | sh
-```
-
-## Usage
-
-### Commands
-
-| Command | Description |
-|---------|-------------|
-| `/guardrail` | Analyze current project and recommend hooks |
-| `/guardrail:setup` | Full setup wizard - install prek, create config, test hooks |
-| `/guardrail:update` | Update existing hooks to latest versions |
-
-### Invoking the Skill
-
-The skill automatically triggers when you:
-- Ask about "pre-commit", "commit hooks", "prek", or "guardrails"
-- Work on a project without `.pre-commit-config.yaml`
-- Encounter formatting or linting issues
-- Create a new project or initialize a git repository
-
-### Example Workflow
+## Usage Example
 
 ```
 You: Help me set up this Python project with proper guardrails
@@ -87,7 +93,7 @@ Claude: [Creates .pre-commit-config.yaml, runs prek install]
 
 ## Default Hooks
 
-Every project gets these baseline hooks:
+Every project gets these baseline security and quality hooks:
 
 ```yaml
 repos:
@@ -105,20 +111,20 @@ repos:
 
 ## Language-Specific Hooks
 
-The skill detects your project's languages and recommends appropriate hooks:
+All recommended tools are Rust-based for maximum performance.
 
-| Language | Hooks |
-|----------|-------|
-| Python | ruff (linting + formatting) |
-| Rust | cargo-check, cargo-clippy, cargo-fmt (built-in) |
-| JavaScript/TypeScript | eslint, prettier |
-| Go | golangci-lint |
+| Language | Hooks | Built With |
+|----------|-------|------------|
+| Python | ruff (linting + formatting) | Rust |
+| Rust | cargo-check, cargo-clippy, cargo-fmt | Rust |
+| JavaScript/TypeScript | biome (linting + formatting) | Rust |
+| Go | golangci-lint, gofumpt | Go (native) |
 
-## Behavior
+## Adding New Guardrail Skills
 
-- **Recommend, don't auto-add** - Always asks before creating configuration
-- **Ask before migration** - Checks with you before replacing existing hook tools
-- **Fetch latest versions** - Never uses hardcoded versions, always fetches current releases
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add new guardrail skills to the marketplace.
+
+Use the template at `template/SKILL.md` as a starting point.
 
 ## Documentation Links
 

@@ -1,8 +1,8 @@
-# Guardrail Commit Plugin - Claude Instructions
+# Guardrails Plugin Marketplace - Claude Instructions
 
 ## Purpose
 
-This plugin helps you recommend, create, and manage prek pre-commit hooks for code quality guardrails.
+This is a plugin marketplace for code quality guardrails. It contains multiple guardrail plugins, each with their own skills, commands, and agents.
 
 ## Core Behavior Rules
 
@@ -39,12 +39,12 @@ WebFetch URLs:
 ### 4. Detect Languages First
 
 Before recommending hooks, detect project languages by checking for:
-- `package.json` → JavaScript/TypeScript
-- `Cargo.toml` → Rust
-- `pyproject.toml` or `setup.py` → Python
-- `go.mod` → Go
-- `pom.xml` or `build.gradle` → Java
-- `Gemfile` → Ruby
+- `package.json` -> JavaScript/TypeScript
+- `Cargo.toml` -> Rust
+- `pyproject.toml` or `setup.py` -> Python
+- `go.mod` -> Go
+- `pom.xml` or `build.gradle` -> Java
+- `Gemfile` -> Ruby
 
 ### 5. Always Include Security Hooks
 
@@ -63,13 +63,59 @@ Suggest adding hooks when you observe:
 4. **Missing linting** - No linter configured for the project's language
 5. **Merge conflicts** - Files with unresolved conflict markers
 
-## Commands Available
+## Available Plugins
 
+### commit-guardrails
+
+Pre-commit hooks and code quality enforcement using prek.
+
+**Skills:**
+- `guardrail-commit-hooks-skill` - Create and manage prek pre-commit hooks
+
+**Commands:**
 | Command | Purpose |
 |---------|---------|
 | `/guardrail` | Analyze project and recommend hooks |
-| `/guardrail:setup` | Full setup: install prek, create config, test hooks |
+| `/guardrail:setup` | Full setup: install prek, create config, run hooks |
 | `/guardrail:update` | Update hooks to latest versions |
+
+**Agents:**
+- `prek-analyzer` - Project analysis agent for detecting languages and existing hooks
+
+## Project Structure
+
+```
+guardrails/
+├── .claude-plugin/
+│   └── marketplace.json       # Plugin registry (points to ./claude-code)
+├── claude-code/               # Plugin source directory
+│   ├── .claude-plugin/
+│   │   └── plugin.json        # Plugin metadata
+│   ├── agents/
+│   │   └── prek-analyzer.md   # Project analyzer agent
+│   ├── commands/
+│   │   ├── guardrail.md       # Analyze command
+│   │   ├── guardrail-setup.md # Setup command
+│   │   └── guardrail-update.md# Update command
+│   └── skills/
+│       └── guardrail-commit-hooks-skill/
+│           ├── SKILL.md       # Main skill definition
+│           ├── LICENSE.txt
+│           └── languages/     # Language-specific hook configs
+│               ├── index.md
+│               ├── python.md
+│               ├── rust.md
+│               ├── javascript.md
+│               └── go.md
+├── skills/                    # Dual discovery path
+│   └── commit-guardrails/
+│       └── SKILL.md           # For bunx add-skill discovery
+├── scripts/
+│   └── validate-plugin.sh     # Structure validation
+├── template/                  # Template for new skills
+├── CLAUDE.md
+└── README.md
+```
 
 ## Workflow Example
 
@@ -99,12 +145,12 @@ User: "Help me set up this Python project"
 - No external repos needed
 
 ### JavaScript/TypeScript
-- `eslint` - Linting
-- `prettier` - Formatting
-- Fetch from mirrors-eslint and mirrors-prettier repos
+- `biome` - Linting and formatting (replaces ESLint + Prettier)
+- Fetch from biomejs/pre-commit repo
 
 ### Go
 - `golangci-lint` - Comprehensive linter
+- `gofumpt` - Stricter formatting
 - Fetch version from GitHub releases
 
 ## Handling Hook Failures

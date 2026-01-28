@@ -36,7 +36,6 @@ repos:
 
       - id: check-frontmatter
         name: Validate Markdown Frontmatter
-        entry: python3 scripts/check-frontmatter.py
-        language: system
-        files: ^(commands|skills|agents)/.*\.md$
-        types: [markdown]
+        entry: scripts/check-frontmatter.sh
+        language: script
+        files: ^(skills/.*/SKILL\.md|agents/.*\.md)$

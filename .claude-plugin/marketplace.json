@@ -4,14 +4,14 @@
     "name": "snowmead"
   },
   "metadata": {
-    "description": "Plugin marketplace for prek pre-commit hooks and code quality guardrails",
+    "description": "Plugin marketplace for code quality guardrails including pre-commit hooks, security scanning, and compliance checks",
     "version": "1.0.0"
   },
   "plugins": [
     {
-      "name": "guardrail-commit-skill",
-      "description": "Skill for creating and managing prek pre-commit hooks to enforce code quality guardrails",
-      "source": "./"
+      "name": "commit-guardrails",
+      "description": "Pre-commit hooks and code quality enforcement using prek",
+      "source": "./claude-code"
     }
   ]
 }

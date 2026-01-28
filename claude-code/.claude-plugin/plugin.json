@@ -1,0 +1,19 @@
+{
+  "name": "commit-guardrails",
+  "version": "1.0.0",
+  "description": "Pre-commit hooks and code quality enforcement using prek",
+  "author": {
+    "name": "snowmead"
+  },
+  "repository": "https://github.com/snowmead/guardrails",
+  "license": "MIT",
+  "keywords": [
+    "pre-commit",
+    "hooks",
+    "prek",
+    "code-quality",
+    "guardrails",
+    "linting",
+    "formatting"
+  ]
+}
