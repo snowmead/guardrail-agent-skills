@@ -21,34 +21,34 @@ validate_marketplace_json() {
         exit 1
     fi
 
-    if ! uv run python -c "import json; json.load(open('.claude-plugin/marketplace.json'))" 2>/dev/null; then
+    if ! python3 -c "import json; json.load(open('.claude-plugin/marketplace.json'))" 2>/dev/null; then
         error "Invalid JSON syntax in marketplace.json"
         exit 1
     fi
 
     local required_fields=("name" "owner" "plugins")
     for field in "${required_fields[@]}"; do
-        if ! uv run python -c "import json; d=json.load(open('.claude-plugin/marketplace.json')); assert '$field' in d" 2>/dev/null; then
+        if ! python3 -c "import json; d=json.load(open('.claude-plugin/marketplace.json')); assert '$field' in d" 2>/dev/null; then
             error "Missing required field '$field' in marketplace.json"
             exit 1
         fi
     done
 
-    if ! uv run python -c "import json; d=json.load(open('.claude-plugin/marketplace.json')); assert 'name' in d['owner']" 2>/dev/null; then
+    if ! python3 -c "import json; d=json.load(open('.claude-plugin/marketplace.json')); assert 'name' in d['owner']" 2>/dev/null; then
         error "Missing 'name' in marketplace.json owner field"
         exit 1
     fi
 
-    if uv run python -c "import json; d=json.load(open('.claude-plugin/marketplace.json')); assert 'metadata' in d and 'version' in d['metadata']" 2>/dev/null; then
+    if python3 -c "import json; d=json.load(open('.claude-plugin/marketplace.json')); assert 'metadata' in d and 'version' in d['metadata']" 2>/dev/null; then
         local version
-        version=$(uv run python -c "import json; print(json.load(open('.claude-plugin/marketplace.json'))['metadata']['version'])")
+        version=$(python3 -c "import json; print(json.load(open('.claude-plugin/marketplace.json'))['metadata']['version'])")
         if ! [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             error "Invalid version format '$version'. Use semantic versioning (x.y.z)"
             exit 1
         fi
     fi
 
-    if ! uv run python -c "
+    if ! python3 -c "
 import json
 d = json.load(open('.claude-plugin/marketplace.json'))
 plugins = d.get('plugins', [])
@@ -81,13 +81,13 @@ validate_plugin_json() {
             exit 1
         fi
 
-        if ! uv run python -c "import json; json.load(open('$plugin_json'))" 2>/dev/null; then
+        if ! python3 -c "import json; json.load(open('$plugin_json'))" 2>/dev/null; then
             error "Invalid JSON syntax in $plugin_json"
             exit 1
         fi
 
         # Validate required fields in plugin.json
-        if ! uv run python -c "
+        if ! python3 -c "
 import json
 d = json.load(open('$plugin_json'))
 assert 'name' in d and d['name'], 'plugin.json missing name'
@@ -100,7 +100,7 @@ assert 'description' in d and d['description'], 'plugin.json missing description
 
         echo "  Found plugin: $plugin_source"
         success "    plugin.json is valid"
-    done < <(uv run python -c "
+    done < <(python3 -c "
 import json
 d = json.load(open('.claude-plugin/marketplace.json'))
 for plugin in d.get('plugins', []):
@@ -206,14 +206,14 @@ validate_yaml_json_syntax() {
     local errors=0
 
     while IFS= read -r -d '' file; do
-        if ! uv run --with pyyaml python -c "import yaml; yaml.safe_load(open('$file'))" 2>/dev/null; then
+        if ! python3 -c "import yaml; yaml.safe_load(open('$file'))" 2>/dev/null; then
             error "Invalid YAML syntax in '$file'"
             errors=$((errors + 1))
         fi
     done < <(find . -type f \( -name "*.yml" -o -name "*.yaml" \) -not -path "./.git/*" -print0)
 
     while IFS= read -r -d '' file; do
-        if ! uv run python -c "import json; json.load(open('$file'))" 2>/dev/null; then
+        if ! python3 -c "import json; json.load(open('$file'))" 2>/dev/null; then
             error "Invalid JSON syntax in '$file'"
             errors=$((errors + 1))
         fi

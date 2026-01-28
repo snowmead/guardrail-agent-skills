@@ -38,4 +38,4 @@ repos:
         name: Validate Markdown Frontmatter
         entry: scripts/check-frontmatter.sh
         language: script
-        files: ^(skills/.*/SKILL\.md|agents/.*\.md)$
+        files: ^(claude-code/(skills/.*/SKILL\.md|agents/.*\.md|commands/.*\.md)|skills/.*/SKILL\.md)$
