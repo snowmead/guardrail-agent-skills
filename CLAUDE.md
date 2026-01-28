@@ -79,9 +79,6 @@ Pre-commit hooks and code quality enforcement using prek.
 | `/guardrail:setup` | Full setup: install prek, create config, run hooks |
 | `/guardrail:update` | Update hooks to latest versions |
 
-**Agents:**
-- `prek-analyzer` - Project analysis agent for detecting languages and existing hooks
-
 ## Project Structure
 
 ```
@@ -91,8 +88,6 @@ guardrails/
 ├── claude-code/               # Plugin source directory
 │   ├── .claude-plugin/
 │   │   └── plugin.json        # Plugin metadata
-│   ├── agents/
-│   │   └── prek-analyzer.md   # Project analyzer agent
 │   ├── commands/
 │   │   ├── guardrail.md       # Analyze command
 │   │   ├── guardrail-setup.md # Setup command
@@ -112,7 +107,6 @@ guardrails/
 │       └── SKILL.md           # For bunx add-skill discovery
 ├── scripts/
 │   └── validate-plugin.sh     # Structure validation
-├── template/                  # Template for new skills
 ├── CLAUDE.md
 └── README.md
 ```
@@ -122,7 +116,7 @@ guardrails/
 ```
 User: "Help me set up this Python project"
 
-1. Use prek-analyzer agent to detect languages
+1. Analyze project to detect languages (package.json, Cargo.toml, pyproject.toml, etc.)
 2. Check for existing .pre-commit-config.yaml
 3. Check for other hook tools (husky, lefthook)
 4. If no hooks configured, say:

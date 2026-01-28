@@ -35,8 +35,6 @@ guardrails/
 ├── claude-code/               # Plugin source
 │   ├── .claude-plugin/
 │   │   └── plugin.json        # Plugin metadata
-│   ├── agents/
-│   │   └── prek-analyzer.md   # Project analyzer agent
 │   ├── commands/
 │   │   ├── guardrail.md
 │   │   ├── guardrail-setup.md
@@ -49,8 +47,7 @@ guardrails/
 ├── skills/                    # Dual discovery path
 │   └── commit-guardrails/
 │       └── SKILL.md
-├── scripts/                   # Validation scripts
-└── template/                  # Template for new skills
+└── scripts/                   # Validation scripts
 ```
 
 ## What is prek?
