@@ -1,6 +1,19 @@
 ---
 name: prek-analyzer
-description: Analyzes projects to detect languages and recommend appropriate prek hooks. Use this agent when you need to understand a project's structure before recommending pre-commit hooks.
+description: |
+  Use this agent to analyze projects and detect languages for prek pre-commit hook recommendations. This agent examines configuration files and project structure to generate a comprehensive analysis report.
+
+  ## Examples:
+
+  <example>
+  Context: User wants to set up pre-commit hooks for their project
+  user: "Help me set up pre-commit hooks"
+  assistant: "I'll use the prek-analyzer agent to analyze your project structure and recommend appropriate hooks."
+  </example>
+  <example>
+  Context: Skill needs to understand project before generating config
+  assistant: "Spawning prek-analyzer to detect languages and existing hook configurations."
+  </example>
 model: haiku
 tools: [Glob, Read, Grep]
 ---
