@@ -21,7 +21,7 @@ Pre-commit hooks and code quality enforcement using [prek](https://github.com/j1
 ## Installation
 
 ```bash
-bunx skills add snowmead/guardrails
+bunx skills add snowmead/guardrail-agent-skills
 ```
 
 **Install location:** `~/.claude/skills/commit-guardrails/`
