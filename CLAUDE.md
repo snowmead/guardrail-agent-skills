@@ -1,8 +1,8 @@
-# Guardrails Plugin Marketplace - Claude Instructions
+# Guardrails - Claude Instructions
 
 ## Purpose
 
-This is a plugin marketplace for code quality guardrails. It contains multiple guardrail plugins, each with their own skills, commands, and agents.
+This is a skill for code quality guardrails. It helps set up pre-commit hooks using prek for any project.
 
 ## Core Behavior Rules
 
@@ -63,52 +63,19 @@ Suggest adding hooks when you observe:
 4. **Missing linting** - No linter configured for the project's language
 5. **Merge conflicts** - Files with unresolved conflict markers
 
-## Available Plugins
-
-### commit-guardrails
-
-Pre-commit hooks and code quality enforcement using prek.
-
-**Skills:**
-- `guardrail-commit-hooks-skill` - Create and manage prek pre-commit hooks
-
-**Commands:**
-| Command | Purpose |
-|---------|---------|
-| `/guardrail` | Analyze project and recommend hooks |
-| `/guardrail:setup` | Full setup: install prek, create config, run hooks |
-| `/guardrail:update` | Update hooks to latest versions |
-
-## Project Structure
+## Skill Structure
 
 ```
-guardrails/
-├── .claude-plugin/
-│   └── marketplace.json       # Plugin registry (points to ./claude-code)
-├── claude-code/               # Plugin source directory
-│   ├── .claude-plugin/
-│   │   └── plugin.json        # Plugin metadata
-│   ├── commands/
-│   │   ├── guardrail.md       # Analyze command
-│   │   ├── guardrail-setup.md # Setup command
-│   │   └── guardrail-update.md# Update command
-│   └── skills/
-│       └── guardrail-commit-hooks-skill/
-│           ├── SKILL.md       # Main skill definition
-│           ├── LICENSE.txt
-│           └── languages/     # Language-specific hook configs
-│               ├── index.md
-│               ├── python.md
-│               ├── rust.md
-│               ├── javascript.md
-│               └── go.md
-├── skills/                    # Dual discovery path
-│   └── commit-guardrails/
-│       └── SKILL.md           # For bunx add-skill discovery
-├── scripts/
-│   └── validate-plugin.sh     # Structure validation
-├── CLAUDE.md
-└── README.md
+skills/
+  guardrail-commit-hooks/
+    SKILL.md              # Main skill definition
+    LICENSE.txt           # License file
+    languages/            # Language-specific hook configs
+      index.md            # Language registry
+      python.md
+      rust.md
+      javascript.md
+      go.md
 ```
 
 ## Workflow Example
@@ -162,8 +129,3 @@ To update hook versions:
 ```bash
 prek autoupdate
 ```
-
-Or use `/guardrail:update` command which will:
-1. Fetch latest versions from GitHub
-2. Update `.pre-commit-config.yaml`
-3. Run `prek run --all-files` to test

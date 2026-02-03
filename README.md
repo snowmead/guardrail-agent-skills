@@ -1,54 +1,31 @@
-# Guardrails Plugin Marketplace
+# Guardrails
 
-A Claude Code plugin marketplace for code quality guardrails. Add pre-commit hooks, security scanning, compliance checks, and more to your projects.
-
-## Available Plugins
-
-### commit-guardrails
-
-Pre-commit hooks and code quality enforcement using [prek](https://github.com/j178/prek).
-
-**Skills included:**
-- `guardrail-commit-hooks-skill` - Create and manage prek pre-commit hooks
-
-**Commands:**
-| Command | Description |
-|---------|-------------|
-| `/guardrail` | Analyze project and recommend hooks |
-| `/guardrail:setup` | Full setup wizard - install prek, create config, test hooks |
-| `/guardrail:update` | Update existing hooks to latest versions |
+Code quality guardrails skill for Claude Code. Add pre-commit hooks, security scanning, and more to your projects using [prek](https://github.com/j178/prek).
 
 ## Installation
 
+### Claude Code (CLI)
+
 ```bash
-bunx skills add snowmead/guardrail-agent-skills
+npx skills add snowmead/guardrails
 ```
 
-**Install location:** `~/.claude/skills/commit-guardrails/`
+### Manual Installation
 
-## Project Structure
+```bash
+cp -r skills/guardrail-commit-hooks ~/.claude/skills/
+```
 
-```
-guardrails/
-├── .claude-plugin/
-│   └── marketplace.json       # Plugin registry
-├── claude-code/               # Plugin source
-│   ├── .claude-plugin/
-│   │   └── plugin.json        # Plugin metadata
-│   ├── commands/
-│   │   ├── guardrail.md
-│   │   ├── guardrail-setup.md
-│   │   └── guardrail-update.md
-│   └── skills/
-│       └── guardrail-commit-hooks-skill/
-│           ├── SKILL.md
-│           ├── LICENSE.txt
-│           └── languages/     # Language configs
-├── skills/                    # Dual discovery path
-│   └── commit-guardrails/
-│       └── SKILL.md
-└── scripts/                   # Validation scripts
-```
+### Claude.ai
+
+Add the skill to project knowledge or paste the contents of `skills/guardrail-commit-hooks/SKILL.md` into your conversation.
+
+## Features
+
+- **Automatic language detection** - Detects Python, Rust, JavaScript/TypeScript, Go, and more
+- **Dynamic version fetching** - Always uses latest hook versions from GitHub
+- **Migration support** - Helps migrate from husky, lefthook, or pre-commit
+- **Security-first defaults** - Always includes hooks for detecting secrets, with optional branch protection
 
 ## What is prek?
 
@@ -59,13 +36,6 @@ prek is a faster, dependency-free reimplementation of the pre-commit framework w
 - No Python runtime required (single binary)
 - 50% less disk usage
 - Full compatibility with existing configurations
-
-## Features
-
-- **Automatic language detection** - Detects Python, Rust, JavaScript/TypeScript, Go, and more
-- **Dynamic version fetching** - Always uses latest hook versions from GitHub
-- **Migration support** - Helps migrate from husky, lefthook, or pre-commit
-- **Security-first defaults** - Always includes hooks for detecting secrets, with optional branch protection
 
 ## Usage Example
 
@@ -141,11 +111,12 @@ All recommended tools are Rust-based for maximum performance.
 | JavaScript/TypeScript | biome (linting + formatting) | Rust |
 | Go | golangci-lint, gofumpt | Go (native) |
 
-## Adding New Guardrail Skills
+## Included Files
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add new guardrail skills to the marketplace.
-
-Use the template at `template/SKILL.md` as a starting point.
+- `skills/guardrail-commit-hooks/SKILL.md` - Main skill definition
+- `skills/guardrail-commit-hooks/languages/` - Language-specific hook configurations
+  - `index.md` - Language registry
+  - `python.md`, `rust.md`, `javascript.md`, `go.md` - Per-language configs
 
 ## Documentation Links
 

@@ -1,5 +1,5 @@
 ---
-name: guardrail-commit-hooks-skill
+name: guardrail-commit-hooks
 description: |
   Use this skill when users need help with git pre-commit hooks, code quality guardrails, or prek configuration.
 
